@@ -5,11 +5,6 @@ import { SignIn } from "../components/SignIn";
 import { nhost } from "../utils/nhost";
 
 export default function Home() {
-  const url = nhost.graphql.getUrl();
-
-  console.log("123123");
-  console.log({ url });
-
   return (
     <div>
       <Head>
