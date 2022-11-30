@@ -6,9 +6,6 @@ import { Note } from "../utils/types";
 export function Notes() {
   const { isAuthenticated } = useAuthenticationStatus();
 
-  console.log("rendering notes");
-  console.log({ isAuthenticated });
-
   return (
     <div>
       <NotesNew />
@@ -22,8 +19,6 @@ export function NotesNew() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("new note!");
-    console.log(noteTitle);
 
     const { error } = await nhost.graphql.request(
       `#graphql
@@ -94,10 +89,6 @@ export function NotesList() {
   const getNotes = async () => {
     setNotesFetched(true);
 
-    console.log("getting notes");
-    console.log("access token:");
-    console.log(nhost.auth.getAccessToken());
-
     const { data, error } = await nhost.graphql.request(`#graphql
     query {
       notes {
@@ -110,6 +101,7 @@ export function NotesList() {
 
     if (error) {
       console.log(error);
+      alert("error");
       return;
     }
 
