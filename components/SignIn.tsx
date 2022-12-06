@@ -3,8 +3,8 @@ import React, { useState } from "react";
 import { useSignInEmailPassword } from "@nhost/nextjs";
 
 export function SignIn() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("asd@asd.com");
+  const [password, setPassword] = useState("123123");
 
   const { signInEmailPassword, error } = useSignInEmailPassword();
 
@@ -30,6 +30,7 @@ export function SignIn() {
             <input
               name='email'
               type='email'
+              value={email}
               onChange={(e) => setEmail(e.target.value)}
               id='email'
               className='block w-full rounded-md py-2 px-2 border  border-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm'
@@ -47,6 +48,7 @@ export function SignIn() {
             <input
               name='password'
               type='password'
+              value={password}
               onChange={(e) => setPassword(e.target.value)}
               id='password'
               className='block w-full rounded-md py-2 px-2 border  border-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm'

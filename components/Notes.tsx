@@ -6,6 +6,10 @@ import { Note } from "../utils/types";
 export function Notes() {
   const { isAuthenticated } = useAuthenticationStatus();
 
+  console.log({
+    isAuthenticated,
+  });
+
   return (
     <div>
       <NotesNew />
@@ -19,6 +23,10 @@ export function NotesNew() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!noteTitle) {
+      return;
+    }
 
     const { error } = await nhost.graphql.request(
       `#graphql
@@ -118,12 +126,11 @@ export function NotesList() {
   return (
     <div className='my-4'>
       <h1 className='text-2xl py-4'>Notes</h1>
-      <div>
+      <div className='space-y-2'>
         {notes.map((note) => {
           return (
-            <div key={note.id}>
+            <div key={note.id} className='border-b border-gray-200'>
               <div>{note.title}</div>
-              <div>delete</div>
             </div>
           );
         })}
