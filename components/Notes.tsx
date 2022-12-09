@@ -1,15 +1,8 @@
-import { useAuthenticationStatus } from "@nhost/nextjs";
-import React, { useEffect, useState } from "react";
-import { nhost } from "../utils/nhost";
+import React, { useState } from "react";
+import { gql, useMutation, useQuery } from "urql";
 import { Note } from "../utils/types";
 
 export function Notes() {
-  const { isAuthenticated } = useAuthenticationStatus();
-
-  console.log({
-    isAuthenticated,
-  });
-
   return (
     <div>
       <NotesNew />
@@ -18,30 +11,34 @@ export function Notes() {
   );
 }
 
+const INSERT_NOTE = gql`
+  mutation insertNote($note: notes_insert_input!) {
+    insert_notes_one(object: $note) {
+      __typename
+      id
+      created_at
+      title
+    }
+  }
+`;
+
 export function NotesNew() {
-  const [noteTitle, setNoteTitle] = useState("");
+  const [title, setTitle] = useState("");
+
+  const [{ fetching }, insertNote] = useMutation(INSERT_NOTE);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!noteTitle) {
+    if (!title) {
       return;
     }
 
-    const { error } = await nhost.graphql.request(
-      `#graphql
-      mutation insertNote($note: notes_insert_input!) {
-        insert_notes(objects: [$note]) {
-          affected_rows
-        }
-      }
-    `,
-      {
-        note: {
-          title: noteTitle,
-        },
-      }
-    );
+    const { error } = await insertNote({
+      note: {
+        title,
+      },
+    });
 
     if (error) {
       console.log(error);
@@ -49,7 +46,7 @@ export function NotesNew() {
       return;
     }
 
-    setNoteTitle("");
+    setTitle("");
   };
 
   return (
@@ -68,8 +65,8 @@ export function NotesNew() {
               <input
                 name='note'
                 type='note'
-                value={noteTitle}
-                onChange={(e) => setNoteTitle(e.target.value)}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 id='note'
                 className='block w-full rounded-md py-2 px-2 border  border-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm'
                 autoFocus
@@ -80,6 +77,7 @@ export function NotesNew() {
             <button
               type='submit'
               className='inline-flex items-center rounded-md border border-transparent bg-blue-600 px-3 py-2 text-sm font-medium leading-4 text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
+              disabled={fetching}
             >
               Add
             </button>
@@ -90,44 +88,31 @@ export function NotesNew() {
   );
 }
 
+const GET_NOTES = gql`
+  query {
+    notes {
+      __typename
+      id
+      created_at
+      title
+    }
+  }
+`;
+
 export function NotesList() {
-  const [notesFetched, setNotesFetched] = useState(false);
-  const [notes, setNotes] = useState<Note[]>([]);
-
-  const getNotes = async () => {
-    setNotesFetched(true);
-
-    const { data, error } = await nhost.graphql.request(`#graphql
-    query {
-      notes {
-        id
-        created_at
-        title
-      }
-    }
-    `);
-
-    if (error) {
-      console.log(error);
-      alert("error");
-      return;
-    }
-
-    setNotes(data.notes as Note[]);
-  };
-
-  useEffect(() => {
-    if (notesFetched) {
-      return;
-    }
-    getNotes();
+  const [{ data, fetching }] = useQuery({
+    query: GET_NOTES,
   });
+
+  if (fetching) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className='my-4'>
       <h1 className='text-2xl py-4'>Notes</h1>
       <div className='space-y-2'>
-        {notes.map((note) => {
+        {data?.notes?.map((note: Note) => {
           return (
             <div key={note.id} className='border-b border-gray-200'>
               <div>{note.title}</div>

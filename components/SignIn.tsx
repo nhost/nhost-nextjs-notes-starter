@@ -3,8 +3,8 @@ import React, { useState } from "react";
 import { useSignInEmailPassword } from "@nhost/nextjs";
 
 export function SignIn() {
-  const [email, setEmail] = useState("asd@asd.com");
-  const [password, setPassword] = useState("123123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const { signInEmailPassword, error } = useSignInEmailPassword();
 
